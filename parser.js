@@ -408,13 +408,21 @@ const buildNode = (node, quote_dic, nest_dic, attr_ns) => {
         rebuildAttrs(attrs, quote_dic, attr_ns);
         node.name = nodeName;
         node.attrs = attrs;
+    } else {
+        switch(node.type){
+            case 3:
+                node.name = `#text`;
+                break;
+            case 5:
+                node.name = '#comment';
+                break;
+        }
     }
 };
 
 const buildNodeTree = (nodes, quote_dic, nest_dic, attr_ns) => {
-    let root = { type: 9, name: '#document', childNodes: [], attrs: [], parentNode: null, depth: 0 };
+    let root = { type: 9, name: '#document', childNodes: [], attrs: [], parentNode: null, depth: 0, path: '' };
     let runtimeNode = root;
-    let enterNode = false;
     nodes.forEach(node => {
         buildNode(node, quote_dic, nest_dic, attr_ns);
         switch(node.status){
@@ -422,12 +430,14 @@ const buildNodeTree = (nodes, quote_dic, nest_dic, attr_ns) => {
                 node.parentNode = runtimeNode;
                 node.childNodes = [];
                 node.depth = node.parentNode.depth + 1;
+                node.path = `${node.parentNode.path}/${node.name}`;
                 runtimeNode.childNodes.push(node);
                 break;
             case NODE_STATUS.START:
                 node.parentNode = runtimeNode;
                 node.childNodes = [];
                 node.depth = node.parentNode.depth + 1;
+                node.path = `${node.parentNode.path}/${node.name}`;
                 runtimeNode.childNodes.push(node);
                 runtimeNode = node;
                 break;

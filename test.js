@@ -1,4 +1,5 @@
 const { parse } = require('./parser');
+const { getPath, querySelector, querySelectorAll } = require('./node-resolver');
 
 const r = parse(`
 
@@ -45,8 +46,15 @@ const r = parse(`
 <!-- 短信验证码 -->
 <include src="temai_components/msgVerify/msgVerify.swan" />
 
+<!-- 
+  <include src="temai_components/msgVerify/msgVerify.swan" />
+-->
+
+
 `, {
     validNodeOnly: false
 });
 
-console.log(r)
+// console.log(r);
+
+console.log(querySelectorAll(r.root, (node) => node.name === 'include' || node.name === 'scroll-view').map(n => ({ path: n.path, name: n.name })))
