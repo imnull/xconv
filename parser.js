@@ -1,3 +1,17 @@
+const XNode = require('./xnode');
+const {
+    NEST_DIC,
+    QUOTE_DIC,
+    SCRIPT_NAMES,
+    NODE_LEFT,
+    NODE_RIGHT,
+    ESCAPE_CHAR,
+    NODE_TYPES,
+    NODE_STATUS,
+} = require('./parser-config');
+
+const isValidNode = require('./valid-node');
+
 const readTo = (s, bingo, startIndex = 0) => {
     for(let i = startIndex, len = s.length; i < len; i++){
         let ch = s.charAt(i);
@@ -7,26 +21,6 @@ const readTo = (s, bingo, startIndex = 0) => {
     }
     return -1;
 };
-
-const NEST_DIC = {
-    '{': '}',
-    '[': ']',
-    '(': ')'
-};
-
-const QUOTE_DIC = {
-    '"': '"',
-    "'": "'",
-    '`': '`'
-};
-
-const SCRIPT_NAMES = [
-    'wxs', 'filter'
-];
-
-const NODE_LEFT = '<';
-const NODE_RIGHT = '>';
-const ESCAPE_CHAR = '\\';
 
 /* 平面文本解析 START */
 
@@ -194,23 +188,10 @@ const readToBlock = (s, strBlock, startIndex = 0) => {
 
 /* Node树结构构造 START */
 
-const NODE_TYPES = {
-    NODE: 1,
-    TEXT: 3,
-    COMMENT: 5
-};
-
-const NODE_STATUS = {
-    START: 0,
-    END: 1,
-    SINGLE: 2
-};
-
 const isBlankChar = (ch) => /^\s+$/.test(ch);
 const readToBlankStart = (s, startIndex = 0) => readTo(s, isBlankChar, startIndex);
 const readToBlankEnd = (s, startIndex = 0) => readTo(s, (ch) => !isBlankChar(ch), startIndex);
 const trim = s => s.replace(/^\s+|\s+$/g, '');
-const trimLeft = s => s.replace(/^\s+/, '');
 
 const getNodeType = (s) => {
     if(s.charAt(0) === NODE_LEFT){
@@ -292,16 +273,6 @@ const getMiniScript = (s) => {
     return scripts;
 }
 
-const isValidNode = (node) => {
-    if(node.type === NODE_TYPES.NODE){
-        return true;
-    } else if(node.type === NODE_TYPES.TEXT){
-        return /[^\s]+/.test(node.content);
-    } else {
-        return false;
-    }
-}
-
 const rebuildAttrs = (attrs, quote_dic, attr_ns) => attrs.forEach(attr => {
     let { name, value } = attr;
     let ns = attr_ns, n = name;
@@ -336,7 +307,7 @@ const buildNode = (node, quote_dic, nest_dic, attr_ns) => {
         if(idx < 0){
             node.name = trim(content);
             node.attrs = [];
-            return;
+            return new XNode(node);
         }
         let nodeName = content.substring(startIndex, idx);
         let attrs = [];
@@ -418,26 +389,29 @@ const buildNode = (node, quote_dic, nest_dic, attr_ns) => {
                 break;
         }
     }
+
+    return new XNode(node);
 };
 
 const buildNodeTree = (nodes, quote_dic, nest_dic, attr_ns) => {
     let root = { type: 9, name: '#document', childNodes: [], attrs: [], parentNode: null, depth: 0, path: '' };
+    root = new XNode(root);
     let runtimeNode = root;
     nodes.forEach(node => {
-        buildNode(node, quote_dic, nest_dic, attr_ns);
+        node = buildNode(node, quote_dic, nest_dic, attr_ns);
         switch(node.status){
             case NODE_STATUS.SINGLE:
                 node.parentNode = runtimeNode;
                 node.childNodes = [];
                 node.depth = node.parentNode.depth + 1;
-                node.path = `${node.parentNode.path}/${node.name}`;
+                // node.path = `${node.parentNode.path}/${node.name}`;
                 runtimeNode.childNodes.push(node);
                 break;
             case NODE_STATUS.START:
                 node.parentNode = runtimeNode;
                 node.childNodes = [];
                 node.depth = node.parentNode.depth + 1;
-                node.path = `${node.parentNode.path}/${node.name}`;
+                // node.path = `${node.parentNode.path}/${node.name}`;
                 runtimeNode.childNodes.push(node);
                 runtimeNode = node;
                 break;
@@ -445,7 +419,6 @@ const buildNodeTree = (nodes, quote_dic, nest_dic, attr_ns) => {
                 runtimeNode = runtimeNode.parentNode || root;
                 break;
         }
-
         // delete node.status;
     });
     return root;

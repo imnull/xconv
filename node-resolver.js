@@ -14,7 +14,19 @@ const getTop = (node) => {
     return node;
 };
 
+const getDepth = (node) => {
+    let depth = 1;
+    while(node.parentNode && node.parentNode.type != 9){
+        node = node.parentNode;
+        depth += 1;
+    }
+    return depth;
+}
+
 const appendChild = (parentNode, childNode) => {
+    if(childNode.parentNode){
+        removeChild(childNode.parentNode, childNode);
+    }
     parentNode.childNodes.push(childNode);
     childNode.parentNode = parentNode;
     return childNode;
@@ -87,6 +99,7 @@ const querySelectorAll = (node, fn) => {
 module.exports = {
     getPath,
     getTop,
+    getDepth,
     appendChild,
     removeChild,
     insertBefore,
