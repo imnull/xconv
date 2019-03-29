@@ -30,6 +30,14 @@ const NODE_STATUS = {
     SINGLE: 2
 };
 
+const ATTR_NAME_NS = [
+    'if', 'for', 'key', 'for-index'
+];
+
+const BLOCK_PAIRS = [
+    { left: '<!--', right: '-->', closure: true }
+];
+
 module.exports = {
     NEST_DIC,
     QUOTE_DIC,
@@ -39,4 +47,6 @@ module.exports = {
     ESCAPE_CHAR,
     NODE_TYPES,
     NODE_STATUS,
+    ATTR_NAME_NS,
+    BLOCK_PAIRS,
 };

@@ -182,8 +182,6 @@ const readToBlock = (s, strBlock, startIndex = 0) => {
     // }
 };
 
-
-
 /* 平面文本解析 END */
 
 /* Node树结构构造 START */
@@ -445,75 +443,6 @@ const parse = (s, option = {}) => {
     return { root, queue };
 };
 
-
-const node2str = (node, option = {}) => {
-
-    let {
-        depthOffset = 0,
-        ns = 'wx:',
-        attrNamesNS = ['if', 'for', 'key', 'for-index'],
-        attrNameParser = n => n
-    } = option;
-
-    let { name, attrs = [], childNodes = [], depth = 0, type } = node;
-    depth = Math.max(0, depth + depthOffset);
-
-    let prefix = '\n' + '\t'.repeat(depth + 1);
-
-    let attrStr = attrs.map(attr => {
-        let { name, value, quote = '' } = attr;
-        if(typeof(attrNameParser) === 'function'){
-            name = attrNameParser(name);
-        }
-        if(attrNamesNS.indexOf(name) > -1){
-            name = `${ns}${name}`;
-        }
-        if(typeof(value) === 'undefined'){
-            return prefix + name;
-        } else {
-            return `${prefix}${name}=${quote}${value}${quote}`;
-        }
-    }).join(' ');
-
-    prefix = '\n' + '\t'.repeat(depth);
-    if(childNodes.length < 1){
-        switch(type){
-            case NODE_TYPES.NODE:
-                return '\n' + '\t'.repeat(depth) + `<${name} ${attrStr}/>`;
-            case NODE_TYPES.TEXT:
-                return '\n' + '\t'.repeat(depth) + node.content;
-            case NODE_TYPES.COMMENT:
-                return `<!-- ${node.content} -->`;
-            default:
-                return '';
-        }
-        
-    } else {
-        return (
-            '\n' + '\t'.repeat(depth) + `<${name} ${attrStr}>` +
-            childNodes.map(n => node2str(n, option)).join('') +
-            '\n' + '\t'.repeat(depth) + `</${name}>`
-        )
-    }
-}
-
-const toStr = (node, option = {}) => {
-    let s;
-    if(node.type === 9){
-        s = node.childNodes.map(n => node2str(n, {
-            ...option,
-            depthOffset: -1
-        })).join('');
-    } else {
-        s = node2str(n, {
-            ...option,
-            depthOffset: -n.depth
-        });
-    }
-    s = trim(s);
-    return s;
-};
-
 const fillChildNodes = (n, tester, nodes = []) => {
     if(!n || !Array.isArray(n.childNodes) || n.childNodes.length < 1){
         return;
@@ -529,7 +458,6 @@ const fillChildNodes = (n, tester, nodes = []) => {
 
 module.exports = {
     parse,
-    toStr,
     utils: {
         isNestStart: (ch, dic = NEST_DIC) => isNestStart(ch, dic),
         isQuoteStart: (ch, dic = QUOTE_DIC) => isQuoteStart(ch, dic),

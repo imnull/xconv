@@ -3,7 +3,7 @@ const { getPath, querySelector, querySelectorAll } = require('./node-resolver');
 
 const r = parse(`
 
-<a><c /></a>
+<a if="2 > 1"><c /></a>
 `, {
     validNodeOnly: false
 });
@@ -20,8 +20,9 @@ const r = parse(`
 
 r.root.querySelector(n => n.name === 'a')
   .attr('aa', 1)
+  .attr('aa', 2)
   .attr('bb', 2)
   .attr('if', '1 > 2')
   ;
 
-  console.log(r.root.toString({ validNodeOnly: true, includeChildren: true, ns: 'wx:' }));
+  console.log(r.root.toString({ validNodeOnly: true, includeChildren: true, ns: null }));
