@@ -1,4 +1,4 @@
-const jsonx = require('./json');
+const jsonx = require('./jsonx');
 
 console.log(jsonx(`callback([1, {
   '  
@@ -9,15 +9,7 @@ console.log(jsonx(`callback([1, {
 `))
 
 const XReader = require('./reader/x-reader');
-
-let reader = new XReader(`<view class="couponUseRule">
-    {{couponInfo.actDesc}}
-<!-- </view> -->
-<view class="orderLimit">
-    {{couponInfo.shopName}}
-</view>
-<view class="timeLimit">
-    领券时间:{{couponInfo.startTime}}至{{couponInfo.endTime}}
-</view>
-</view>`);
+let reader = new XReader(`
+<text a=1 b=2>{{couponInfo.parValue}}</text>
+`);
 console.log(reader.read())

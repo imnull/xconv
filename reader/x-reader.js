@@ -1,27 +1,24 @@
 const Reader = require('./index');
-const LnCol = require('../utils/ln-col');
+const { LnCol } = require('../utils');
 
 const config_xml = {
     escape: '\\',
-    status: {
-        '"': 'quote',
-        "'": 'quote',
-        '{': 'nest',
-        '[': 'nest',
-        '(': 'nest',
-        '<': (c, idx, s) => {
-          let ss = s.substr(idx);
-          if(/^<\!--/.test(ss)){
-            return 'comment';
-          } else if(/^<\/?[a-z]/i.test(ss)){
-            return 'node';
-          } else {
-            return 'plain'
-          }
-        },
-    },
+    status: [
+        { name: 'quote', test: /["']/ },
+        { name: 'nest', test: /[\{\[\(]/ },
+        { name: 'binder', test: '{{', weight: 100 },
+        { name: 'comma', test: ',' },
+        { name: 'colon', test: ':' },
+        { name: 'comment', test: '<!--' },
+        { name: 'nest', test: /^<\/?[a-z]+/i, size: 3, rename: 'node' },
+        { name: 'node$name', test: /<\/?[a-z]+/i, nest: '<', offset: -1, size: 3 },
+        { name: 'node$close', test: '/', nest: '<', weight: 100 },
+        { name: 'attr$name', test: /^[^\s\=>]+\s*\=?/, nest: '<' },
+        { name: 'attr$equal', test: '=', nest: '<' },
+        { name: 'attr$value', test: /^=\s*[^\s]+/, nest: '<', offset: -1, size: -1 },
+    ],
     statusCallback: null,
-    nests: { '{': '}', '[': ']', '(': ')' }
+    nests: { '{': '}', '[': ']', '(': ')', '<': '>' }
 };
 
 class XReader extends Reader {
@@ -43,24 +40,49 @@ class XReader extends Reader {
         return this.position = idx - 1;
     }
 
-    read_node(_i, _sub) {
-        let i = _i, left = this.charAt(i++), right = '>', c, st;
-        let j = i;
-        let sub = [];
+    read_binder(i, sub){
+        let _i = i;
+        i += 2;
+        let _sub = [];
         for(; i < this.length; i++){
-            c = this.charAt(i);
-            st = `read_${this.status(c)}`;
-            if(st in this){
-                i = this[st](i, sub);
-                j = i + 1;
-            } else if(c === right){
-                _sub.push(this.seg(_i, i - _i + 1, { left }));
+            let c = this.charAt(i);
+            if(this.status() === 'quote'){
+                i = this.read_quote(i, _sub);
+            } else if(c === '}' && this.substr(i, 2) === '}}'){
+                i += 1;
+                sub.push(this.seg(_i, i - _i + 1))
                 return i;
             }
         }
         let [ln, col] = LnCol(this.s, _i);
-        let err = `Node is not closed. "${left}" at Ln ${ln} Col ${col}`;
+        let err = `Binder is not closed. '{{' at Ln ${ln} Col ${col}`;
         throw err;
+    }
+
+    read_attr$equal(i, sub){
+        return this._read_one_char(i, sub);
+    }
+
+    read_node$close(i, sub){
+        return this._read_one_char(i, sub);
+    }
+
+    read_attr$name(i, sub){
+        return this._read_regexp(i, sub, /([^\s\=>]+)\s*\=?/, 1)
+    }
+
+    read_node$name(i, sub){
+        return this._read_regexp(i, sub, /\/?[a-z][\w\-\_]*/, 0)
+    }
+
+    read_attr$value(i, sub){
+        i = this._read_blank(i);
+        let st = this.status(i);
+        if(st === 'quote'){
+            return this.read_quote(i, sub);
+        } else {
+            return this._read_regexp(i, sub, /[^\s"'=><]+/, 0, 'attr$value')
+        }
     }
 };
 

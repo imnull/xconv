@@ -1,5 +1,31 @@
-const LnCol = require('../utils/ln-col');
-const trim = s => s.replace(/^\s+|\s+$/g, '');
+const { LnCol, Str: { trim } } = require('../utils');
+const {
+    Type: {
+        isFunction, isString, isArray, isRegExp
+    }
+} = require('../utils')
+
+const run_test = (s, i, tester, stack) => {
+    let {
+        test, nest = null,
+        size = 1, offset = 0
+    } = tester;
+
+    if(nest && (stack.length < 1 || stack[stack.length - 1].left !== nest)){
+        return false;
+    }
+    if(isString(test)){
+        return s.substr(i, test.length) === test;
+    } else if(isFunction(test)){
+        return test(s, i, stack);
+    } else if(isRegExp(test)){
+        i = Math.max(i + offset, 0);
+        return test.test(s.substr(i, size < 0 ? s.length : size));
+    } else if(isArray(test)){
+        return test.some(t => run_test(s, i, t, stack))
+    }
+    return false;
+}
 
 class Reader {
 
@@ -7,26 +33,33 @@ class Reader {
         this.s = s;
         this.config = config;
         this.position = 0;
+        this.stack = [];
     }
 
     get length(){
         return this.s.length;
     }
 
-    status(){
-        let { status, statusCallback } = this.config;
-        let c = this.charAt(this.position);
-        if(c in status){
-            let st = status[c];
-            if(typeof(st) === 'function'){
-                st = st(c, this.position, this.s);
-            }
-            return st;
-        } else if(typeof(statusCallback) === 'function'){
-            return statusCallback(c, this.position, this.s);
+    statusMatch(){
+        let { status } = this.config;
+        let matches = status
+            .filter(s => run_test(this.s, this.position, s, this.stack))
+            .sort((a, b) => {
+                let { weight: A = 0 } = a;
+                let { weight: B = 0 } = b;
+                return B - A
+            })
+            ;
+        if(matches.length < 1){
+            return null;
         } else {
-            return 'plain';
+            return matches[0];
         }
+    }
+
+    status(){
+        let m = this.statusMatch();
+        return m ? m.name : 'plain';
     }
 
     seek(offset){
@@ -51,9 +84,17 @@ class Reader {
         return this.s.indexOf(...args);
     }
 
-
-    seg(index, size, ext = {}){
-        let status = this.status(this.charAt(index));
+    seg(index, size, ext = {}, status = null){
+        this.position = index;
+        if(!status){
+            let m = this.statusMatch();
+            if(!m){
+                status = 'plain';
+            } else {
+                let { name, rename = name } = m;
+                status = rename;
+            }
+        }
         let text = this.substr(index, size);
         switch(status){
             case 'quote':
@@ -86,6 +127,7 @@ class Reader {
         let i = _i, left = this.charAt(i++), right = this.config.nests[left], c, st;
         let j = i;
         let sub = [];
+        this.stack.push({ left, right })
         for(; i < this.length; i++){
             c = this.charAt(i);
             st = `read_${this.status(c)}`;
@@ -100,7 +142,8 @@ class Reader {
                     sub.push(this.seg(j, i - j))
                 }
                 sub = sub.filter(n => n.status !== 'plain' || !/^\s*$/.test(n.text));
-                _sub.push(this.seg(_i, i - _i + 1, { left, sub }));
+                _sub.push(this.seg(_i, i - _i + 1, { left, sub, depth: this.stack.length }));
+                this.stack.pop();
                 return i;
             }
         }
@@ -109,35 +152,59 @@ class Reader {
         throw err;
     }
 
-    read_comma(i, sub){
+    _read_blank(i){
+        let blankReg = /^\s/;
+        for(; i < this.length; i++){
+            if(!blankReg.test(this.charAt(i))){
+                break;
+            }
+        }
+        return this.position = i;
+    }
+
+    _read_one_char(i, sub){
         sub.push(this.seg(i, 1));
         return this.position = i;
     }
 
-    read_colon(i, sub){
-        sub.push(this.seg(i, 1));
-        return i;
+    _read_regexp(i, sub, regexp, group = 0, status = null, ext = {}){
+        let m = this.substr(i).match(regexp);
+        let size = m.index + m[group].length;
+        sub.push(this.seg(i, size, ext, status));
+        return this.position = i + size - 1;
     }
 
-    read(i = 0, r = []){
+    read_comma(i, sub){
+        return this._read_one_char(i, sub);
+    }
+
+    read_colon(i, sub){
+        return this._read_one_char(i, sub);
+    }
+
+    _read(i, sub = []){
         let j = i, len = this.length;
         for(; i < len; i++){
             let c = this.charAt(i);
             let st = `read_${this.status(c)}`;
             if(st in this){
                 if(j < i){
-                    r.push(this.seg(j, i - j))
+                    sub.push(this.seg(j, i - j))
                 }
-                i = this[st](i, r);
-                if(i < 0){
-                    return r;
-                }
+                i = this[st](i, sub);
                 j = i + 1;
             }
         }
         if(j < i){
-            r.push(this.seg(j, i - j))
+            sub.push(this.seg(j, i - j))
         }
+        return i;
+    }
+
+    read(i = 0){
+        let r = [];
+        this._read(i, r);
+        r = r.filter(n => n.status !== 'plain' || !/^\s*$/.test(n.text))
         return r;
     }
 

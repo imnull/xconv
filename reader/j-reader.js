@@ -2,15 +2,12 @@ const Reader = require('./index');
 
 const config_jsonx = {
     escape: '\\',
-    status: {
-        '"': 'quote',
-        "'": 'quote',
-        ',': 'comma',
-        ':': 'colon',
-        '{': 'nest',
-        '[': 'nest',
-        '(': 'nest',
-    },
+    status: [
+        { name: 'quote', test: /["']/ },
+        { name: 'nest', test: /[\{\[\(]/ },
+        { name: 'comma', test: ',' },
+        { name: 'colon', test: ':' },
+    ],
     statusCallback: null,
     nests: { '{': '}', '[': ']', '(': ')' }
 };
