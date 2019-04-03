@@ -25,16 +25,23 @@ const value = n => {
     }
 };
 
-const jsonx = (s) => {
-    let result = new JReader(s).read();
-    let [$1, $2] = result;
-    let r;
-    if($2 && $2.status === 'nest' && $1.status === 'plain'){ // JSONP
-        r = $2.sub[0];
-    } else {	// JSON
-        r = $1;
+const jsonx = {
+    parse: (s) => {
+        let result = new JReader(s).read();
+        let [$1, $2] = result;
+        let r;
+        if($2 && $2.status === 'nest' && $1.status === 'plain'){ // JSONP
+            r = $2.sub[0];
+        } else {	// JSON
+            r = $1;
+        }
+        return value(r);
+    },
+    parseFile: (path) => {
+        const fs = require('fs');
+        let s = fs.readFileSync(path, { encoding: 'utf-8' });
+        return this.parse(s);
     }
-    return value(r);
 };
 
 module.exports = jsonx;

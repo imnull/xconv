@@ -1,6 +1,6 @@
 const jsonx = require('./jsonx');
 
-console.log(jsonx(`callback([1, {
+console.log(jsonx.parse(`callback([1, {
   '  
     123456    ':1234,
   1234567:'JSONP here',

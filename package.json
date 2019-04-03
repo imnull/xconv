@@ -2,7 +2,7 @@
   "name": "xconv",
   "version": "1.0.0",
   "description": "General XML resolver",
-  "main": "index.js",
+  "main": "xconv.js",
   "scripts": {
     "test": "node test.js"
   },
