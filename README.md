@@ -1,7 +1,60 @@
 # xconv
 标记语言转换器
 
-NPM: 
+NPM: https://www.npmjs.com/package/xconv
+
+## 使用
+    npm i xconv
+
+```js
+const { jsonx, xmlx } = require('xconv');
+
+console.log(JSON.stringify(jsonx.parse(`callback({
+  a: 1,
+  b: [
+      { c: 1 }, null, 1, 2
+      '123',
+      "{}}}([[[]]]]]])",
+  ],
+});
+`), null, '    '))
+
+console.log(
+    xmlx.parse(`
+<text disabled a=1 b=2 data-city='{{util.cal("a", 1)}}'>
+<!-- comment -->
+fdasfasdadf{{couponInfo.parValue('abc', 1)}}<button disabled />
+</text>
+`, { format: true, indent: '    ' }
+).root.toString());
+```
+
+输出：
+```js
+{
+    "a": 1,
+    "b": [
+        {
+            "c": 1
+        },
+        null,
+        1,
+        2,
+        "123",
+        "{}}}([[[]]]]]])"
+    ]
+}
+```
+```html
+<root>
+    <text disabled a="1" b="2" data-city='{{util.cal("a", 1)}}'>
+        <!-- comment -->
+        fdasfasdadf
+        {{ couponInfo.parValue('abc', 1) }}
+        <button disabled/>
+    </text>
+</root>
+```
 
 ## Generic-JSON
 泛JSON类型，包含 `JSON`、`JSONP`、`JS-Object` 等多种标准嵌套封闭的文本格式。
@@ -76,3 +129,22 @@ fdasfasdadf{{couponInfo.parValue('abc', 1)}}<button disabled />
 
 *注意：当节点属性被识别为数据绑定时，会保留原始的属性包围引号。`...data-city='{{util.cal("a", 1)}}'...`*
 
+## Readers
+
+`Readers`是解析器的依赖。对应不同的文档。`JReader`和`XReader`继承自`Reader`。
+
+```js
+const {
+    Reader,
+    JReader,
+    XReader
+} = require('xconv');
+```
+### Reader
+读取一般的引号封闭与语法嵌套
+
+### JReader
+对应`jsonx`，读取`Generic-JSON`文本。
+
+### XReader
+对应`xmlx`，读取`Generic-XML`文本。

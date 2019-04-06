@@ -1,7 +1,7 @@
 {
   "name": "xconv",
-  "version": "1.0.0",
-  "description": "General XML resolver",
+  "version": "1.0.1",
+  "description": "Structured text resolver",
   "main": "xconv.js",
   "scripts": {
     "test": "node test.js"
@@ -11,7 +11,7 @@
     "url": "git+https://github.com/imnull/xconv.git"
   },
   "keywords": [
-    "xml"
+    "xml, json, parse, javascript, reader, text-analytics"
   ],
   "author": "imnull@outlook.com",
   "license": "ISC",
