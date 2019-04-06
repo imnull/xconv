@@ -1,15 +1,18 @@
-const jsonx = require('./jsonx');
+const { jsonx, xmlx } = require('./index');
 
-console.log(jsonx.parse(`callback([1, {
-  '  
-    123456    ':1234,
-  1234567:'JSONP here',
-  "12345678":"1123456",
-},null]);
-`))
+console.log(JSON.stringify(jsonx.parse(`callback({
+  a: 1,
+  b: [
+      { c: 1 }, null, 1, 2
+      '123',
+      "{}}}([[[]]]]]])",
+  ],
+});
+`), null, '    '))
 
-const XReader = require('./reader/x-reader');
-let reader = new XReader(`
-<text a=1 b=2>{{couponInfo.parValue}}</text>
-`);
-console.log(reader.read())
+console.log(xmlx.parse(`
+<text disabled a=1 b=2 data-city='{{util.cal("a", 1)}}'>
+<!-- comment -->
+fdasfasdadf{{couponInfo.parValue('abc', 1)}}<button disabled />
+</text>
+`, { format: true, indent: '    ' }).root.toString());

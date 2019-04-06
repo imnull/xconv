@@ -37,9 +37,9 @@ const jsonx = {
         }
         return value(r);
     },
-    parseFile: (path) => {
+    parseFile: (path, encoding = 'utf-8') => {
         const fs = require('fs');
-        let s = fs.readFileSync(path, { encoding: 'utf-8' });
+        let s = fs.readFileSync(path, { encoding });
         return this.parse(s);
     }
 };

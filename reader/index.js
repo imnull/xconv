@@ -40,10 +40,10 @@ class Reader {
         return this.s.length;
     }
 
-    statusMatch(){
+    statusMatch(i = this.position){
         let { status } = this.config;
         let matches = status
-            .filter(s => run_test(this.s, this.position, s, this.stack))
+            .filter(s => run_test(this.s, i, s, this.stack))
             .sort((a, b) => {
                 let { weight: A = 0 } = a;
                 let { weight: B = 0 } = b;
@@ -70,6 +70,10 @@ class Reader {
     charAt(i){
         this.position = i;
         return this.s.charAt(i);
+    }
+
+    peek(size = 1){
+        return this.substr(this.position, size);
     }
 
     substr(...args){
@@ -107,6 +111,18 @@ class Reader {
         return { status, text, ...ext };
     }
 
+    read_to_str(str, i, sub, status, offset = 0, ext = {}){
+        let idx = this.indexOf(str, i);
+        if(i < 0){
+            let [ln, col] = LnCol(this.s, i);
+            let err = `Can not find "${str}" from position ${i}. Ln ${ln} Col ${col}`;
+            throw err;
+        }
+        idx += str.length
+        sub.push(this.seg(i, idx - i + offset, ext, status));
+        return this.position = idx - 1;
+    }
+
     read_quote(_i, sub){
         let i = _i, len = this.length, q = this.charAt(i++), c;
         for(; i < len; i++){
@@ -130,7 +146,7 @@ class Reader {
         this.stack.push({ left, right })
         for(; i < this.length; i++){
             c = this.charAt(i);
-            st = `read_${this.status(c)}`;
+            st = `read_${this.status()}`;
             if(st in this){
                 if(i > j){
                     sub.push(this.seg(j, i - j))
@@ -186,7 +202,7 @@ class Reader {
         let j = i, len = this.length;
         for(; i < len; i++){
             let c = this.charAt(i);
-            let st = `read_${this.status(c)}`;
+            let st = `read_${this.status()}`;
             if(st in this){
                 if(j < i){
                     sub.push(this.seg(j, i - j))

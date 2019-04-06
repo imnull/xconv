@@ -18,5 +18,8 @@
   "bugs": {
     "url": "https://github.com/imnull/xconv/issues"
   },
-  "homepage": "https://github.com/imnull/xconv#readme"
+  "homepage": "https://github.com/imnull/xconv#readme",
+  "dependencies": {
+    "oop-node": "^1.0.5"
+  }
 }

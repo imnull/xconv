@@ -15,7 +15,7 @@ const config_xml = {
         { name: 'node$close', test: '/', nest: '<', weight: 100 },
         { name: 'attr$name', test: /^[^\s\=>]+\s*\=?/, nest: '<' },
         { name: 'attr$equal', test: '=', nest: '<' },
-        { name: 'attr$value', test: /^=\s*[^\s]+/, nest: '<', offset: -1, size: -1 },
+        { name: 'attr$value', test: /^=\s*[^\s]+/, nest: '<', offset: 0, size: -1, weight: 50 },
     ],
     statusCallback: null,
     nests: { '{': '}', '[': ']', '(': ')', '<': '>' }
@@ -31,9 +31,9 @@ class XReader extends Reader {
         let tail = '-->';
         let idx = this.indexOf(tail, i);
         if(idx < 0){
-        let [ln, col] = LnCol(this.s, i);
-        let err = `Comment is not closed at Ln ${ln} Col ${col}`;
-        throw err;
+            let [ln, col] = LnCol(this.s, i);
+            let err = `Comment is not closed at Ln ${ln} Col ${col}`;
+            throw err;
         }
         idx += tail.length
         sub.push(this.seg(i, idx - i));
@@ -76,10 +76,17 @@ class XReader extends Reader {
     }
 
     read_attr$value(i, sub){
-        i = this._read_blank(i);
-        let st = this.status(i);
+        i = this._read_blank(i + 1);
+        let st = this.status();
         if(st === 'quote'){
-            return this.read_quote(i, sub);
+            let _i = i;
+            let quote = this.charAt(i);
+            i = this._read_blank(i + 1);
+            if(this.substr(i, 2) === '{{'){
+                return this.read_to_str(`}}${quote}`, _i + 1, sub, 'attr$value', -1, { quote })
+            } else {
+                return this.read_quote(i, sub);
+            }
         } else {
             return this._read_regexp(i, sub, /[^\s"'=><]+/, 0, 'attr$value')
         }
