@@ -1,8 +1,8 @@
 {
   "name": "xconv",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Structured text resolver",
-  "main": "xconv.js",
+  "main": "index.js",
   "scripts": {
     "test": "node test.js"
   },
@@ -20,6 +20,6 @@
   },
   "homepage": "https://github.com/imnull/xconv#readme",
   "dependencies": {
-    "oop-node": "^1.0.5"
+    "oop-node": "^1.2.0"
   }
 }
