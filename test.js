@@ -15,4 +15,4 @@ console.log(xmlx.parse(`
 <!-- comment -->
 fdasfasdadf{{couponInfo.parValue('abc', 1)}}<button disabled />
 </text>
-`, { format: true, indent: '    ' }).root.toString());
+`, { format: true, indent: '    ' }).toString());

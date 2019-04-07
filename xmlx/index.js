@@ -59,10 +59,9 @@ const parse_node = (n, doc) => {
 const parse = (s, option = {}) => {
     option = { ...option };
     let doc = new XDocument(option);
-    let root = doc.createElement('root');
     let reader = new XReader(s);
     let nodes = reader.read();
-    let N = root;
+    let N = doc;
     nodes.forEach(n => {
         switch(n.status){
             case 'node':
@@ -71,7 +70,7 @@ const parse = (s, option = {}) => {
                     N.appendChild(node);
                 } else {
                     if(closure){
-                        N = N.parent || root;
+                        N = N.parent || doc;
                     } else {
                         N.appendChild(node);
                         N = node;
@@ -92,7 +91,6 @@ const parse = (s, option = {}) => {
         }
     });
 
-    doc.root = root;
     return doc;
 }
 
