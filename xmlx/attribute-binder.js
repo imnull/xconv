@@ -5,8 +5,9 @@ class AttributeBinder extends Attribute {
     constructor(option){
         option = { ...option, type: 102 };
         super(option);
-        let { quote = '"' } = option;
+        let { quote = '"', value = '' } = option;
         this.quote = quote;
+        this.script = value;
     }
 
     toString(){
