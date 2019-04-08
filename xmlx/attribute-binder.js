@@ -8,7 +8,6 @@ class AttributeBinder extends Attribute {
         let { quote = '"', value = '' } = option;
         this.quote = quote;
         if(/\{\{[\w\W]*\}\}/.test(value)){
-            this.script = value;
             this.type = 102;
         }
     }

@@ -5,8 +5,7 @@ class ElementBinder extends ElementBase {
         option = { ...option, type: 101, name: '#binder' };
         super(option);
         let { value = '' } = option;
-        let script = value.replace(/^\{\{\s*([\w\W]*)\s*\}\}$/, '$1');
-        this.script = script;
+        // let script = value.replace(/^\{\{\s*([\w\W]*)\s*\}\}$/, '$1');
     }
 
     toString(depthOffset = 0){
