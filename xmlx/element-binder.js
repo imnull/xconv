@@ -9,12 +9,12 @@ class ElementBinder extends ElementBase {
         this.script = script;
     }
 
-    toString(){
+    toString(depthOffset = 0){
         let { script } = this;
         let { format } = this.document;
         let prefix = '';
         if(format){
-            prefix = this.getFormatPrefix();
+            prefix = this.getFormatPrefix(depthOffset);
         }
         return `${prefix}{{ ${script} }}`;
     }
