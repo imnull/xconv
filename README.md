@@ -1,6 +1,9 @@
 # xconv
 标记语言转换器
 
+### 更新
+- `1.1.0` x-reader.read_attr$value内部参数错误修复。
+
 NPM: https://www.npmjs.com/package/xconv
 
 ## 使用
