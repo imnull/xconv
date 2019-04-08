@@ -5,17 +5,18 @@ class ElementBinder extends ElementBase {
         option = { ...option, type: 101, name: '#binder' };
         super(option);
         let { value = '' } = option;
+        this.value = value;
         // let script = value.replace(/^\{\{\s*([\w\W]*)\s*\}\}$/, '$1');
     }
 
     toString(depthOffset = 0){
-        let { script } = this;
+        let { value } = this;
         let { format } = this.document;
         let prefix = '';
         if(format){
             prefix = this.getFormatPrefix(depthOffset);
         }
-        return `${prefix}{{ ${script} }}`;
+        return `${prefix}{{ ${value} }}`;
     }
 }
 
