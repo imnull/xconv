@@ -85,7 +85,7 @@ class XReader extends Reader {
             if(this.substr(i, 2) === '{{'){
                 return this.read_to_str(`}}${quote}`, _i + 1, sub, 'attr$value', -1, { quote })
             } else {
-                return this.read_quote(i, sub);
+                return this.read_quote(_i, sub);
             }
         } else {
             return this._read_regexp(i, sub, /[^\s"'=><]+/, 0, 'attr$value')
