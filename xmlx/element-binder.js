@@ -2,10 +2,15 @@ const { Document, ElementBase, Attribute } = require('oop-node');
 
 class ElementBinder extends ElementBase {
     constructor(option){
-        option = { ...option, type: 101, name: '#binder' };
+        option = { ...option, name: '#binder' };
         super(option);
         let { value = '' } = option;
-        this.value = value;
+        if(/\{\{([\w\W]*)\}\}/.test(value)){
+            this.type = 101;
+            this.value = RegExp.$1.replace(/^\s+|\s+$/g, '');
+        } else {
+            this.value = value;
+        }
         // let script = value.replace(/^\{\{\s*([\w\W]*)\s*\}\}$/, '$1');
     }
 
@@ -16,7 +21,11 @@ class ElementBinder extends ElementBase {
         if(format){
             prefix = this.getFormatPrefix(depthOffset);
         }
-        return `${prefix}{{ ${value} }}`;
+        if(this.type === 101){
+            return `${prefix}{{ ${value} }}`;
+        } else {
+            return super.toString();
+        }
     }
 }
 
