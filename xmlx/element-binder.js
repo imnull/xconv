@@ -1,31 +1,24 @@
-const { Document, ElementBase, Attribute } = require('oop-node');
+const { ElementBase } = require('oop-node');
+const { binderTest } = require('./utils');
 
 class ElementBinder extends ElementBase {
     constructor(option){
         option = { ...option, name: '#binder' };
         super(option);
         let { value = '' } = option;
-        if(/\{\{([\w\W]*)\}\}/.test(value)){
+        this.value = value;
+
+        if(binderTest.test(value)){
             this.type = 101;
-            this.value = RegExp.$1.replace(/^\s+|\s+$/g, '');
-        } else {
-            this.value = value;
         }
-        // let script = value.replace(/^\{\{\s*([\w\W]*)\s*\}\}$/, '$1');
+        this.binders = value.match(binderTest) || [];
     }
 
     toString(depthOffset = 0, option){
-        option = { ...option };
-        let { value } = this;
-        let { format } = option;
-        let prefix = '';
-        if(format){
-            prefix = this.getFormatPrefix(depthOffset, option);
-        }
         if(this.type === 101){
-            return `${prefix}{{ ${value} }}`;
+            return `${this.getFormatPrefix(depthOffset, option)}${this.value}`;
         } else {
-            return super.toString();
+            return super.toString(depthOffset, option);
         }
     }
 }

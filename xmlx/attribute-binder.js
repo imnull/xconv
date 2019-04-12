@@ -1,4 +1,5 @@
-const { Document, ElementBase, Attribute } = require('oop-node');
+const { Attribute, elementUtiles: { resolveNS, invalidValue } } = require('oop-node');
+const { binderTest } = require('./utils');
 
 class AttributeBinder extends Attribute {
 
@@ -7,21 +8,23 @@ class AttributeBinder extends Attribute {
         super(option);
         let { quote = '"', value = '' } = option;
         this.quote = quote;
-        if(/\{\{([\w\W]*)\}\}/.test(value)){
+        if(binderTest.test(value)){
             this.type = 102;
-            this.value = RegExp.$1.replace(/^\s+|\s+$/g, '');
-        } else {
-            this.value = value;
         }
+        this.binders = this.value.match(binderTest) || [];
     }
 
-    toString(){
+    toString(option){
         let { name, value = '', quote = '"' } = this;
-        if(this.type === 102){
-            return `${name}=${quote}{{ ${value} }}${quote}`;
-        } else {
-            return super.toString();
+        if(!invalidValue(name)){
+            if(this.type === 102){
+                name = resolveNS(this, option);
+                return `${name}=${quote}${value}${quote}`;
+            } else {
+                return super.toString(option);
+            }
         }
+        return ''
     }
 }
 
