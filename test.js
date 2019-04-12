@@ -17,4 +17,10 @@ s-for="item, index in block.sugGoods"
 <aabb>s-for="item, index in block.sugGoods"</aabb>
 fdasfasdadf{{couponInfo.parValue('abc', 1)}}<button disabled /><view>{{couponInfo.parValue('abc', 1)}}</view>
 </text>
-`, { format: true, indent: '    ', elementAlone: true }).toString());
+`, {
+    NSGlobal: 'wx',
+    NSSpliter: ':',
+    format: true,
+    indent: '    ',
+    elementAlone: true
+}).toString({ NSGlobal: 's', NSSpliter: '-' }));
