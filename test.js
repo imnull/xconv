@@ -17,4 +17,4 @@ s-for="item, index in block.sugGoods"
 <aabb>s-for="item, index in block.sugGoods"</aabb>
 fdasfasdadf{{couponInfo.parValue('abc', 1)}}<button disabled />
 </text>
-`, { format: true, indent: '    ' }).toString());
+`, { format: true, indent: '    ', elementAlone: true }).toString());
