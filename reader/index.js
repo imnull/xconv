@@ -8,11 +8,19 @@ const {
 const run_test = (s, i, tester, stack) => {
     let {
         test, nest = null,
-        size = 1, offset = 0
+        size = 1, offset = 0, out = false
     } = tester;
 
-    if(nest && (stack.length < 1 || stack[stack.length - 1].left !== nest)){
-        return false;
+    // 如果存在嵌套断言
+    if(nest){
+        // 应在指定嵌套外
+        if(out && stack.length > 0 && stack[stack.length - 1].left === nest){
+            return false;
+        }
+        // 应在指定嵌套内
+        if(!out && (stack.length < 1 || stack[stack.length - 1].left !== nest)){
+            return false;
+        }
     }
     if(isString(test)){
         return s.substr(i, test.length) === test;
@@ -154,12 +162,13 @@ class Reader {
                 i = this[st](i, sub);
                 j = i + 1;
             } else if(c === right){
+                let depth = this.stack.length;
+                this.stack.pop();
                 if(i > j){
                     sub.push(this.seg(j, i - j))
                 }
                 sub = sub.filter(n => n.status !== 'plain' || !/^\s*$/.test(n.text));
-                _sub.push(this.seg(_i, i - _i + 1, { left, sub, depth: this.stack.length }));
-                this.stack.pop();
+                _sub.push(this.seg(_i, i - _i + 1, { left, sub, depth }));
                 return i;
             }
         }
