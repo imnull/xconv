@@ -15,8 +15,9 @@ class ElementBinder extends ElementBase {
     }
 
     toString(depthOffset = 0, option){
+        option = { ...option };
         let { value } = this;
-        let { format } = this.document;
+        let { format } = option;
         let prefix = '';
         if(format){
             prefix = this.getFormatPrefix(depthOffset, option);
