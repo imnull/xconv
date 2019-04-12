@@ -4,13 +4,14 @@ const { LnCol } = require('../utils');
 const config_xml = {
     escape: '\\',
     status: [
-        { name: 'quote', test: /["']/ },
+        { name: 'quote', test: /["']/, nest: '<' },
+        { name: 'quote', test: /["']/, nest: '{' },
+        { name: 'quote', test: /["']/, nest: '[' },
+        { name: 'quote', test: /["']/, nest: '(' },
         { name: 'nest', test: /[\{\[\(]/ },
         { name: 'binder', test: '{{', weight: 100 },
-        { name: 'comma', test: ',' },
-        { name: 'colon', test: ':' },
         { name: 'comment', test: '<!--' },
-        { name: 'nest', test: /^<\/?[a-z]+/i, size: 3, rename: 'node' },
+        { name: 'nest', test: /^<\/?[a-z]+/i, size: 3, rename: 'node', nest: '<', out: true },
         { name: 'node$name', test: /<\/?[a-z]+/i, nest: '<', offset: -1, size: 3 },
         { name: 'node$close', test: '/', nest: '<', weight: 100 },
         { name: 'attr$name', test: /^[^\s\=>]+\s*\=?/, nest: '<' },
