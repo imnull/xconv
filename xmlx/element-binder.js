@@ -14,12 +14,12 @@ class ElementBinder extends ElementBase {
         // let script = value.replace(/^\{\{\s*([\w\W]*)\s*\}\}$/, '$1');
     }
 
-    toString(depthOffset = 0){
+    toString(depthOffset = 0, option){
         let { value } = this;
         let { format } = this.document;
         let prefix = '';
         if(format){
-            prefix = this.getFormatPrefix(depthOffset);
+            prefix = this.getFormatPrefix(depthOffset, option);
         }
         if(this.type === 101){
             return `${prefix}{{ ${value} }}`;
