@@ -1,5 +1,5 @@
 const { ElementBase } = require('oop-node');
-const { binderTest } = require('./utils');
+const { binderTest, getBinders, binderToString } = require('./utils');
 
 class ElementBinder extends ElementBase {
     constructor(option){
@@ -10,13 +10,13 @@ class ElementBinder extends ElementBase {
 
         if(binderTest.test(value)){
             this.type = 101;
+            this.binders = getBinders(value);
         }
-        this.binders = value.match(binderTest) || [];
     }
 
     toString(depthOffset = 0, option){
         if(this.type === 101){
-            return `${this.getFormatPrefix(depthOffset, option)}${this.value}`;
+            return `${this.getFormatPrefix(depthOffset, option)}${binderToString(this.value, this.binders)}`;
         } else {
             return super.toString(depthOffset, option);
         }
