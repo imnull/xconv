@@ -1,5 +1,5 @@
 const { Attribute, elementUtiles: { resolveNS, invalidValue } } = require('oop-node');
-const { binderTest } = require('./utils');
+const { binderTest, getBinders, binderToString } = require('./utils');
 
 class AttributeBinder extends Attribute {
 
@@ -10,8 +10,8 @@ class AttributeBinder extends Attribute {
         this.quote = quote;
         if(binderTest.test(value)){
             this.type = 102;
+            this.binders = getBinders(value);
         }
-        this.binders = this.value.match(binderTest) || [];
     }
 
     toString(option){
@@ -19,7 +19,7 @@ class AttributeBinder extends Attribute {
         if(!invalidValue(name)){
             if(this.type === 102){
                 name = resolveNS(this, option);
-                return `${name}=${quote}${value}${quote}`;
+                return `${name}=${quote}${binderToString(this.value, this.binders)}${quote}`;
             } else {
                 return super.toString(option);
             }
