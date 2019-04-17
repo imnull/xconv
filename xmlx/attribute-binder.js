@@ -11,7 +11,6 @@ class AttributeBinder extends Attribute {
         if(binderTest.test(value)){
             this.type = 102;
             this.binders = getBinders(value);
-            console.log(this.binders)
         }
     }
 
