@@ -42,6 +42,24 @@ class Reader {
         this.config = config;
         this.position = 0;
         this.stack = [];
+
+        this._init_reading_();
+    }
+
+    _init_reading_(){
+        let target = this;
+        this.config.status.forEach(({ name, test }) => {
+            if(isString(test)){
+                let method_name = `read_${name}`;
+                if(!(method_name in target)){
+                    let len = test.length;
+                    target[method_name] = function(i, sub){
+                        sub.push(this.seg(i, len));
+                        return this.position = i + len - 1;
+                    };
+                }
+            }
+        })
     }
 
     get length(){
@@ -65,6 +83,29 @@ class Reader {
         }
     }
 
+    readTo(i, fn, sub){
+        let j = i, len = this.length;
+        for(; i < len; i++){
+            let c = this.charAt(i);
+            let st = `read_${this.status()}`;
+            // console.log(i, c, this.substr(i, 4), st, '-======')
+            if(st in this){
+                i = this[st](i, sub);
+                if(i < 0){
+                    this.position = j;
+                    return -1;
+                }
+            } else {
+                if(fn(c, i, this.s)){
+                    this.position = i;
+                    return i;
+                }
+            }
+        }
+        this.position = j;
+        return -1;
+    }
+
     status(){
         let m = this.statusMatch();
         return m ? m.name : 'plain';
@@ -75,8 +116,8 @@ class Reader {
         return this.position;
     }
 
-    charAt(i){
-        this.position = i;
+    charAt(i, seek = true){
+        if(seek) this.position = i;
         return this.s.charAt(i);
     }
 
@@ -199,13 +240,13 @@ class Reader {
         return this.position = i + size - 1;
     }
 
-    read_comma(i, sub){
-        return this._read_one_char(i, sub);
-    }
+    // read_comma(i, sub){
+    //     return this._read_one_char(i, sub);
+    // }
 
-    read_colon(i, sub){
-        return this._read_one_char(i, sub);
-    }
+    // read_colon(i, sub){
+    //     return this._read_one_char(i, sub);
+    // }
 
     _read(i, sub = []){
         let j = i, len = this.length;
