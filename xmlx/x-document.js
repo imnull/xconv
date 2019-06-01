@@ -10,6 +10,14 @@ class XDocument extends Document {
     createAttributeBinder(name, value, quote, parent){
         return new AttributeBinder({ document: this, name, value, quote, parent });
     }
+
+    get documentElement(){
+        return this.root;
+    }
+
+    get childNodes(){
+        return this.documentElement.childNodes;
+    }
 }
 
 module.exports = XDocument;
