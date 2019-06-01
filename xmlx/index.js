@@ -94,11 +94,13 @@ const parse = (s, option = {}) => {
     return doc;
 }
 
-module.exports = {
+const R = {
     parse,
     parseFile: (path, encoding = 'utf-8') => {
         const fs = require('fs');
         let s = fs.readFileSync(path, { encoding });
-        return this.parse(s);
+        return R.parse(s);
     }
 };
+
+module.exports = R;

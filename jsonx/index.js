@@ -40,7 +40,7 @@ const jsonx = {
     parseFile: (path, encoding = 'utf-8') => {
         const fs = require('fs');
         let s = fs.readFileSync(path, { encoding });
-        return this.parse(s);
+        return jsonx.parse(s);
     }
 };
 
