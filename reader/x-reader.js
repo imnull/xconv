@@ -83,11 +83,16 @@ class XReader extends Reader {
             let _i = i;
             let quote = this.charAt(i);
             i = this._read_blank(i + 1);
-            if(this.substr(i, 2) === '{{'){
-                return this.read_to_str(`}}${quote}`, _i + 1, sub, 'attr$value', -1, { quote })
-            } else {
-                return this.read_quote(_i, sub);
-            }
+            return this.read_quote(_i, sub);;
+
+            // if(this.substr(i, 2) === '{{'){
+            //     i = this.read_to_str(`}}`, _i + 1, sub, 'attr$value', -1, { quote });
+
+            //     console.log(i, this.substr(i))
+            //     return i;
+            // } else {
+            //     return this.read_quote(_i, sub);
+            // }
         } else {
             return this._read_regexp(i, sub, /[^\s"'=><]+/, 0, 'attr$value')
         }

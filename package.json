@@ -1,6 +1,6 @@
 {
   "name": "xconv",
-  "version": "1.3.6",
+  "version": "1.3.7",
   "description": "Structured text resolver",
   "main": "index.js",
   "scripts": {
