@@ -11,7 +11,7 @@ const { jsonx, xmlx, Reader, StyleReader } = require('./index');
 // `), null, '    '))
 
 console.log(xmlx.parse(`
-<image src="asdfas{{imgHost}}/uimg/ZR/share_order/{{item.url}}_400x400.jpg"></image>
+<image a="1{{{a:1}}}aaa{{{a:2}}}123" src="asdfas{{imgHost}}/uimg/ZR/share_order/{{item.url}}_400x400.jpg"></image>
 s-for="item, index in block.sugGoods"
 <text disabled a=1 b=2 data-city='abc-{{ 123 }}-abc-1234-{{ util.cal("a",1) }}'>
 <!-- comment -->

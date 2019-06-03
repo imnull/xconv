@@ -1,9 +1,11 @@
-const binderTest = /\{\{([\w\W]+?)\}\}/;
+const binderTest = /\{\{([\w\W]+?)\}\}([^\}]|$)/;
 const matchAll = (str, start, reg, fn) => {
+    // console.log(str.substr(start))
     let m = str.substr(start).match(reg);
     if(!m){
         return;
     }
+    m[0] = m[0].substr(0, m[0].length - m[2].length);
     fn(m, start);
     matchAll(str, start + m.index + m[0].length, reg, fn);
 };
