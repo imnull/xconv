@@ -19,6 +19,7 @@ s-for="item, index in block.sugGoods"
   ¥
   {{couponInfo.parValue('abc', 1)}}
 </aabb>
+<a><b><c/></b></a>
 <button disabled /><view>{{couponInfo.parValue('abc', 1)}}</view>
 </text>
 `, {
