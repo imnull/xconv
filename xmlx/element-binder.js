@@ -15,8 +15,13 @@ class ElementBinder extends ElementBase {
     }
 
     toString(depthOffset = 0, option){
+        let { formatIgnore = [] } = option;
         if(this.type === 101){
-            return `${this.getFormatPrefix(depthOffset, option)}${binderToString(this.value, this.binders)}`;
+            if(!~formatIgnore.indexOf(this.type)){
+                return `${this.getFormatPrefix(depthOffset, option)}${binderToString(this.value, this.binders)}`;
+            } else {
+                return binderToString(this.value, this.binders);
+            }
         } else {
             return super.toString(depthOffset, option);
         }
