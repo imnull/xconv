@@ -20,6 +20,6 @@
   },
   "homepage": "https://github.com/imnull/xconv#readme",
   "dependencies": {
-    "oop-node": "^1.4.13"
+    "oop-node": "^1.5"
   }
 }
