@@ -3,7 +3,6 @@ const XDocument = require('./x-document');
 
 const parse_node = (n, doc) => {
     let node = null;
-    let name;
     let { sub = [] } = n;
     sub = sub.slice(0);
     let nameSub = sub.shift();
@@ -14,13 +13,19 @@ const parse_node = (n, doc) => {
     }
     let alone = false;
     node = doc.createElement(nameSub.text);
-    n.sub.forEach(nn => {
+    let _nn = null;
+    let name = null;
+    sub.forEach(nn => {
         switch(nn.status){
             case 'attr$name':
                 if(name){
                     node.setAttribute(name);
                 }
                 name = nn.text;
+                if(_nn){
+                    node.attributes.addSpliter(_nn.text);
+                    _nn = null;
+                }
                 break;
             case 'attr$equal':
                 if(name){
@@ -47,12 +52,22 @@ const parse_node = (n, doc) => {
                 }
                 name = null;
                 break;
+            case 'plain':
+                _nn = nn;
+                break;
+            default:
+                console.log(nn)
+                break;
         }
     });
     if(name){
         node.setAttribute(name);
         name = null;
     }
+    if(_nn){
+        node.attributes.addSpliter(_nn.text);
+    }
+    node.alone = alone;
     return { node, alone };
 }
 
@@ -94,13 +109,11 @@ const parse = (s, option = {}) => {
     return doc;
 }
 
-const R = {
+module.exports = {
     parse,
-    parseFile: (path, encoding = 'utf-8') => {
+    parseFile: (path, option = {}, fsOption = { encoding: 'utf-8' }) => {
         const fs = require('fs');
-        let s = fs.readFileSync(path, { encoding });
-        return R.parse(s);
+        let s = fs.readFileSync(path, fsOption);
+        return parse(s, option);
     }
 };
-
-module.exports = R;

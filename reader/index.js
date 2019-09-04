@@ -154,7 +154,7 @@ class Reader {
                 text = text.substr(1, text.length - 2);
                 break;
             case 'plain':
-                text = trim(text)
+                // text = trim(text)
                 break;
         }
         return { status, text, ...ext };
@@ -208,7 +208,7 @@ class Reader {
                 if(i > j){
                     sub.push(this.seg(j, i - j))
                 }
-                sub = sub.filter(n => n.status !== 'plain' || !/^\s*$/.test(n.text));
+                // sub = sub.filter(n => n.status !== 'plain' || !/^\s*$/.test(n.text));
                 _sub.push(this.seg(_i, i - _i + 1, { left, sub, depth }));
                 return i;
             }
@@ -218,13 +218,16 @@ class Reader {
         throw err;
     }
 
-    _read_blank(i){
+    _read_blank(i, sub){
         let blankReg = /^\s/;
+        // let _i = i;
         for(; i < this.length; i++){
             if(!blankReg.test(this.charAt(i))){
                 break;
             }
         }
+        // console.log(_i, i)
+        // sub.push(this.seg(_i, i - _i + 1, {}, 'plain'));
         return this.position = i;
     }
 
@@ -270,7 +273,8 @@ class Reader {
     read(i = 0){
         let r = [];
         this._read(i, r);
-        r = r.filter(n => n.status !== 'plain' || !/^\s*$/.test(n.text))
+        // console.log(r)
+        // r = r.filter(n => n.status !== 'plain' || !/^\s*$/.test(n.text))
         return r;
     }
 
