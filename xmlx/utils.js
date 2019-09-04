@@ -1,3 +1,5 @@
+const { readQuote, readBinders } = require('../utils/read-binder');
+
 const binderTest = /\{\{([\w\W]+?)\}\}([^\}]|$)/;
 const matchAll = (str, start, reg, fn) => {
     // console.log(str.substr(start))
@@ -9,18 +11,21 @@ const matchAll = (str, start, reg, fn) => {
     fn(m, start);
     matchAll(str, start + m.index + m[0].length, reg, fn);
 };
+
 module.exports = {
     binderTest,
     matchAll,
-    getBinders: (input) => {
-        let r = [];
-        matchAll(input, 0, binderTest, (m, start) => {
-            let [origin, script] = m, size = origin.length;
-            let { index } = m;
-            index += start;
-            script = script.replace(/^\s+|\s+$/g, '');
-            r.push({ index, size, origin, script, input });
-        });
+    readQuote,
+    readBinders,
+    getBinders: (input, left = '{{', right = '}}') => {
+        const r = readBinders(input, left, right).filter(it => it.type === 'binder').map(({ value, pos }) => ({
+            index: pos[0],
+            size: pos[1] - pos[0],
+            origin: value,
+            script: value.substring(left.length, value.length - right.length),
+            input
+        }));
+        // console.log(r, input)
         return r;
     },
     binderToString: (str, binders) => {
@@ -39,3 +44,8 @@ module.exports = {
         return r.join('');
     }
 };
+
+// const test = '123{{"abc"aa + C.sum(0 + "}}")}}abc{{{12}}}';
+
+// console.log(readBinders(test))
+// console.log(aaa(test))
