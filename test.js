@@ -38,7 +38,7 @@ s-for="item, index in block.sugGoods"
 }).toString({ NSGlobal: 's', NSSpliter: '-' }));
 
 const x = xmlx.parse(`
-<image b="{{C.sub(1,'}}')}}"
+<image b="{{C.sub(1,'}}')}}" class='a {{aaaa"b"bbb}} b'
   a="1{{{a:1}}}aaa{{{a:2}}}123"
   src="asdfas{{imgHost}}/uimg/ZR/share_order/{{item.url}}_400x400.jpg">
   </image >
@@ -59,8 +59,12 @@ s-for="item, index in block.sugGoods"
 </text>
 `)
 
+
+const attr = x.query(n => n.name === 'image').attributes.find(a => a.name === 'class');
+attr.type = 2;
+
 console.log(1111111)
-console.log(x.query(n => n.name === 'aabb').toString())
+console.log(x.query(n => n.name === 'image').toString())
 
 // let r = new StyleReader(`
 // body {
